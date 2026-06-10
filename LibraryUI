@@ -629,11 +629,24 @@ function Library:_CreateMainv0rtexd()
     local player = plr.LocalPlayer
     local userId = player.UserId
 
+    self.titleLabel = CreateInstance("TextLabel", {
+        Name = "Title",
+        FontFace = f.Bold,
+        TextColor3 = c.Text,
+        Text = self.title,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 10),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextSize = textsize.Title,
+        Size = UDim2.new(0, 120, 0, 25),
+        Parent = self.topBar
+    })
+
     self.profileThumbnail = CreateInstance("ImageLabel", {
         Name = "ProfileThumbnail",
         BackgroundTransparency = 1,
         Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=48&h=48",
-        Position = UDim2.new(0, 10, 0, 7),
+        Position = UDim2.new(0, 135, 0, 7),
         Size = UDim2.new(0, 32, 0, 32),
         Parent = self.topBar
     })
@@ -645,7 +658,7 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "60 FPS",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 50, 0, 7),
+        Position = UDim2.new(0, 175, 0, 7),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
@@ -658,7 +671,7 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "0 ms",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 50, 0, 23),
+        Position = UDim2.new(0, 175, 0, 23),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
