@@ -6,7 +6,7 @@ local rs = game:GetService("RunService")
 local gs = game:GetService("GuiService")
 local hs = game:GetService("HttpService")
 
-local n = "Acrylic"
+local n = "Skulx"
 
 local c = {
     Background = Color3.fromRGB(12, 12, 12),
@@ -70,17 +70,14 @@ local NotificationContainer = nil
 local ClickSound = nil
 
 local function PlayClickSound()
-    if not ClickSound then
-        local success = pcall(function()
-            ClickSound = Instance.new("Sound")
-            ClickSound.SoundId = "rbxassetid://6026984224"
-            ClickSound.Volume = 0.5
-            ClickSound.Parent = game:GetService("SoundService")
-        end)
-    end
-    if ClickSound then
-        ClickSound:Play()
-    end
+    local success = pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://6026984224"
+        sound.Volume = 0.5
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+        game:GetService("Debris"):AddItem(sound, 1)
+    end)
 end
 
 local function CreateTween(instance, properties, duration, easingStyle, easingDirection)
@@ -204,12 +201,12 @@ local function DisconnectAll()
 end
 
 local function GetConfigFolder(configName)
-    return "AcrylicConfigs/" .. configName
+    return "SkulxConfigs/" .. configName
 end
 
 local function EnsureConfigFolder()
-    if isfolder and not isfolder("AcrylicConfigs") then
-        makefolder("AcrylicConfigs")
+    if isfolder and not isfolder("SkulxConfigs") then
+        makefolder("SkulxConfigs")
     end
 end
 
@@ -217,9 +214,9 @@ local function GetAvailableConfigs()
     local configs = {}
     if isfolder and listfiles then
         EnsureConfigFolder()
-        local files = listfiles("AcrylicConfigs")
+        local files = listfiles("SkulxConfigs")
         for _, file in ipairs(files) do
-            local name = file:match("AcrylicConfigs/(.+)%.json$") or file:match("AcrylicConfigs\\(.+)%.json$")
+            local name = file:match("SkulxConfigs/(.+)%.json$") or file:match("AcrylicConfigs\\(.+)%.json$")
             if name then
                 table.insert(configs, name)
             end
@@ -228,10 +225,10 @@ local function GetAvailableConfigs()
     return configs
 end
 
-local AcrylicBlur = {}
-AcrylicBlur.__index = AcrylicBlur
+local SkulxBlur = {}
+SkulxBlur.__index = SkulxBlur
 
-function AcrylicBlur.new(object)
+function SkulxBlur.new(object)
     local self = setmetatable({
         _object = object,
         _folder = nil,
@@ -239,23 +236,23 @@ function AcrylicBlur.new(object)
         _frame = nil,
         _dof = nil,
         _enabled = true
-    }, AcrylicBlur)
+    }, SkulxBlur)
     self:_Initialize()
     return self
 end
 
-function AcrylicBlur:_CreateDepthOfField()
-    local existingDOF = lg:FindFirstChild("AcrylicBlur")
+function SkulxBlur:_CreateDepthOfField()
+    local existingDOF = lg:FindFirstChild("SkulxBlur")
     if existingDOF then
         existingDOF:Destroy()
     end
-    local existingBlur = lg:FindFirstChild("AcrylicBlurEffect")
+    local existingBlur = lg:FindFirstChild("SkulxBlurEffect")
     if existingBlur then
         existingBlur:Destroy()
     end
     
     local dof = CreateInstance("DepthOfFieldEffect", {
-        Name = "AcrylicBlur",
+        Name = "SkulxBlur",
         FarIntensity = 0,
         FocusDistance = 0.05,
         InFocusRadius = 0.1,
@@ -267,18 +264,18 @@ function AcrylicBlur:_CreateDepthOfField()
     return dof
 end
 
-function AcrylicBlur:_CreateFolder()
-    local existingFolder = workspace.CurrentCamera:FindFirstChild("AcrylicBlur")
+function SkulxBlur:_CreateFolder()
+    local existingFolder = workspace.CurrentCamera:FindFirstChild("SkulxBlur")
     if existingFolder then
         existingFolder:Destroy()
     end
     self._folder = CreateInstance("Folder", {
-        Name = "AcrylicBlur",
+        Name = "SkulxBlur",
         Parent = workspace.CurrentCamera
     })
 end
 
-function AcrylicBlur:_CreateRoot()
+function SkulxBlur:_CreateRoot()
     local part = CreateInstance("Part", {
         Name = "Root",
         Color = Color3.new(0, 0, 0),
@@ -299,7 +296,7 @@ function AcrylicBlur:_CreateRoot()
     self._root = part
 end
 
-function AcrylicBlur:_CreateFrame()
+function SkulxBlur:_CreateFrame()
     self._frame = CreateInstance("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
         Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -309,7 +306,7 @@ function AcrylicBlur:_CreateFrame()
     })
 end
 
-function AcrylicBlur:_Render(distance)
+function SkulxBlur:_Render(distance)
     distance = distance or 0.001
     local positions = {
         top_left = Vector2.new(),
@@ -367,7 +364,7 @@ function AcrylicBlur:_Render(distance)
     task.spawn(OnChange)
 end
 
-function AcrylicBlur:_Initialize()
+function SkulxBlur:_Initialize()
     self:_CreateDepthOfField()
     self:_CreateFolder()
     self:_CreateRoot()
@@ -375,7 +372,7 @@ function AcrylicBlur:_Initialize()
     self:_Render(0.001)
 end
 
-function AcrylicBlur:SetEnabled(enabled)
+function SkulxBlur:SetEnabled(enabled)
     self._enabled = enabled
     if self._root then
         self._root.Transparency = enabled and 0.95 or 1
@@ -385,15 +382,15 @@ function AcrylicBlur:SetEnabled(enabled)
     end
 end
 
-function AcrylicBlur:Destroy()
+function SkulxBlur:Destroy()
     if self._folder then
         self._folder:Destroy()
     end
-    local dof = lg:FindFirstChild("AcrylicBlur")
+    local dof = lg:FindFirstChild("SkulxBlur")
     if dof then
         dof:Destroy()
     end
-    local blur = lg:FindFirstChild("AcrylicBlurEffect")
+    local blur = lg:FindFirstChild("SkulxBlurEffect")
     if blur then
         blur:Destroy()
     end
@@ -414,8 +411,8 @@ end
 
 function Library.new(title, configFolder)
     local self = setmetatable({}, Library)
-    self.title = title or "Acrylic"
-    self.configFolder = configFolder or title or "Acrylic"
+    self.title = title or "Skulx"
+    self.configFolder = configFolder or title or "Skulx"
     self.sections = {}
     self.currentTab = nil
     self.minimized = false
@@ -604,7 +601,7 @@ end
 
 function Library:_CreateMainv0rtexd()
     self.screenGui = CreateInstance("ScreenGui", {
-        Name = n,
+        Name = "Skulx",
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false
     })
@@ -700,7 +697,7 @@ function Library:_CreateMainv0rtexd()
     MakeDraggable(self.container, self.topBar)
 
     self.screenGui.Parent = player:WaitForChild("PlayerGui")
-    self._acrylicBlur = AcrylicBlur.new(self.container)
+    self._acrylicBlur = SkulxBlur.new(self.container)
 end
 
 function Library:_Createv0rtexdControls()
@@ -927,7 +924,7 @@ function Library:SaveConfig(configName)
     end
     
     local success, err = pcall(function()
-        writefile("AcrylicConfigs/" .. configName .. ".json", hs:JSONEncode(configData))
+        writefile("SkulxConfigs/" .. configName .. ".json", hs:JSONEncode(configData))
     end)
     
     if success then
@@ -959,7 +956,7 @@ function Library:LoadConfig(configName)
         return false
     end
     
-    local path = "AcrylicConfigs/" .. configName .. ".json"
+    local path = "SkulxConfigs/" .. configName .. ".json"
     if not isfile(path) then
         self:Notify({
             Title = "Error",
@@ -1011,7 +1008,7 @@ function Library:DeleteConfig(configName)
         return false
     end
     
-    local path = "AcrylicConfigs/" .. configName .. ".json"
+    local path = "SkulxConfigs/" .. configName .. ".json"
     if isfile(path) then
         delfile(path)
         self:Notify({
@@ -1114,15 +1111,11 @@ function Library:CreateSection(name)
     CreateListLayout(tabsContainer, 6, Enum.SortOrder.LayoutOrder)
     CreatePadding(tabsContainer, 0, 0, 15, 0)
 
-    local function ToggleSection()
-        PlayClickSound()
-        section.expanded = not section.expanded
-        CreateTween(arrow, {Rotation = section.expanded and 0 or 180}, animationspeed.Normal)
-        tabsContainer.Visible = section.expanded
-    end
-
-    headerBtn.MouseButton1Click:Connect(ToggleSection)
-    arrow.MouseButton1Click:Connect(ToggleSection)
+    tabsContainer.Visible = true
+    arrow.Visible = false
+    headerBtn.Visible = false
+    headerLabel.Position = UDim2.new(0, 5, 0, 0)
+    headerLabel.TextColor3 = c.TextDark
 
     section.frame = sectionFrame
     section.tabsContainer = tabsContainer
@@ -1283,8 +1276,8 @@ function Library._CreateTab(section, name, icon)
         return Library._CreateConfigSection(self)
     end
 
-    function tabMethods:CreateDualSection()
-        return Library._CreateDualSection(self)
+    function tabMethods:CreateDualSection(leftName, rightName)
+        return Library._CreateDualSection(self, leftName, rightName)
     end
 
     return tabMethods
@@ -1331,7 +1324,7 @@ function Library._CreateContentSection(tab, name)
     return section
 end
 
-function Library._CreateDualSection(tab)
+function Library._CreateDualSection(tab, leftName, rightName)
     local dualFrame = CreateInstance("Frame", {
         Name = "DualSection",
         BackgroundTransparency = 1,
@@ -1340,10 +1333,36 @@ function Library._CreateDualSection(tab)
         Parent = tab.content
     })
 
+    local leftLabel = CreateInstance("TextLabel", {
+        Name = "LeftLabel",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = leftName or "Left",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 15,
+        Size = UDim2.new(0.48, 0, 0, 25),
+        Parent = dualFrame
+    })
+
+    local rightLabel = CreateInstance("TextLabel", {
+        Name = "RightLabel",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = rightName or "Right",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0.52, 0, 0, 0),
+        TextSize = 15,
+        Size = UDim2.new(0.48, 0, 0, 25),
+        Parent = dualFrame
+    })
+
     local leftFrame = CreateInstance("Frame", {
         Name = "Left",
         BackgroundTransparency = 1,
-        Size = UDim2.new(0.48, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 28),
+        Size = UDim2.new(0.48, 0, 1, -28),
         Parent = dualFrame
     })
     CreateListLayout(leftFrame, 8, Enum.SortOrder.LayoutOrder)
@@ -1351,8 +1370,8 @@ function Library._CreateDualSection(tab)
     local rightFrame = CreateInstance("Frame", {
         Name = "Right",
         BackgroundTransparency = 1,
-        Size = UDim2.new(0.48, 0, 1, 0),
-        Position = UDim2.new(0.52, 0, 0, 0),
+        Position = UDim2.new(0.52, 0, 0, 28),
+        Size = UDim2.new(0.48, 0, 1, -28),
         Parent = dualFrame
     })
     CreateListLayout(rightFrame, 8, Enum.SortOrder.LayoutOrder)
