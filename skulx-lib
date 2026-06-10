@@ -67,6 +67,21 @@ Library.__index = Library
 local Connections = {}
 local NotificationQueue = {}
 local NotificationContainer = nil
+local ClickSound = nil
+
+local function PlayClickSound()
+    if not ClickSound then
+        local success = pcall(function()
+            ClickSound = Instance.new("Sound")
+            ClickSound.SoundId = "rbxassetid://6026984224"
+            ClickSound.Volume = 0.5
+            ClickSound.Parent = game:GetService("SoundService")
+        end)
+    end
+    if ClickSound then
+        ClickSound:Play()
+    end
+end
 
 local function CreateTween(instance, properties, duration, easingStyle, easingDirection)
     local tween = ts:Create(
@@ -759,7 +774,7 @@ function Library:_CreateContentArea()
         FontFace = f.Bold,
         TextColor3 = c.Text,
         Text = self.title,
-        TextXAlignment = Enum.TextXAlignment.Left,
+        TextXAlignment = Enum.TextXAlignment.Center,
         BackgroundTransparency = 1,
         TextSize = textsize.Title + 2,
         Size = UDim2.new(1, -20, 0, 28),
@@ -1100,6 +1115,7 @@ function Library:CreateSection(name)
     CreatePadding(tabsContainer, 0, 0, 15, 0)
 
     local function ToggleSection()
+        PlayClickSound()
         section.expanded = not section.expanded
         CreateTween(arrow, {Rotation = section.expanded and 0 or 180}, animationspeed.Normal)
         tabsContainer.Visible = section.expanded
@@ -1196,6 +1212,7 @@ function Library._CreateTab(section, name, icon)
     CreateListLayout(tab.content, 8, Enum.SortOrder.LayoutOrder)
 
     clickBtn.MouseButton1Click:Connect(function()
+        PlayClickSound()
         Library._SelectTab(section._library, tab, tabBtn, tabStroke, iconLabel, tabText, textGradient)
     end)
 
@@ -1266,6 +1283,10 @@ function Library._CreateTab(section, name, icon)
         return Library._CreateConfigSection(self)
     end
 
+    function tabMethods:CreateDualSection()
+        return Library._CreateDualSection(self)
+    end
+
     return tabMethods
 end
 
@@ -1308,6 +1329,82 @@ function Library._CreateContentSection(tab, name)
         Parent = tab.content
     })
     return section
+end
+
+function Library._CreateDualSection(tab)
+    local dualFrame = CreateInstance("Frame", {
+        Name = "DualSection",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Parent = tab.content
+    })
+
+    local leftFrame = CreateInstance("Frame", {
+        Name = "Left",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.48, 0, 1, 0),
+        Parent = dualFrame
+    })
+    CreateListLayout(leftFrame, 8, Enum.SortOrder.LayoutOrder)
+
+    local rightFrame = CreateInstance("Frame", {
+        Name = "Right",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.48, 0, 1, 0),
+        Position = UDim2.new(0.52, 0, 0, 0),
+        Parent = dualFrame
+    })
+    CreateListLayout(rightFrame, 8, Enum.SortOrder.LayoutOrder)
+
+    local leftMethods = {}
+    local rightMethods = {}
+
+    function leftMethods:CreateToggle(config)
+        return Library._CreateToggle({content = leftFrame, _library = tab._library}, config)
+    end
+    function leftMethods:CreateSlider(config)
+        return Library._CreateSlider({content = leftFrame, _library = tab._library}, config)
+    end
+    function leftMethods:CreateButton(config)
+        return Library._CreateButton({content = leftFrame, _library = tab._library}, config)
+    end
+    function leftMethods:CreateDropdown(config)
+        return Library._CreateDropdown({content = leftFrame, _library = tab._library}, config)
+    end
+    function leftMethods:CreateKeybind(config)
+        return Library._CreateKeybind({content = leftFrame, _library = tab._library}, config, tab._library)
+    end
+    function leftMethods:CreateColorPicker(config)
+        return Library._CreateColorPicker({content = leftFrame, _library = tab._library}, config)
+    end
+    function leftMethods:CreateTextBox(config)
+        return Library._CreateTextBox({content = leftFrame, _library = tab._library}, config)
+    end
+
+    function rightMethods:CreateToggle(config)
+        return Library._CreateToggle({content = rightFrame, _library = tab._library}, config)
+    end
+    function rightMethods:CreateSlider(config)
+        return Library._CreateSlider({content = rightFrame, _library = tab._library}, config)
+    end
+    function rightMethods:CreateButton(config)
+        return Library._CreateButton({content = rightFrame, _library = tab._library}, config)
+    end
+    function rightMethods:CreateDropdown(config)
+        return Library._CreateDropdown({content = rightFrame, _library = tab._library}, config)
+    end
+    function rightMethods:CreateKeybind(config)
+        return Library._CreateKeybind({content = rightFrame, _library = tab._library}, config, tab._library)
+    end
+    function rightMethods:CreateColorPicker(config)
+        return Library._CreateColorPicker({content = rightFrame, _library = tab._library}, config)
+    end
+    function rightMethods:CreateTextBox(config)
+        return Library._CreateTextBox({content = rightFrame, _library = tab._library}, config)
+    end
+
+    return leftMethods, rightMethods
 end
 
 function Library._CreateParagraph(tab, config)
@@ -1444,6 +1541,7 @@ function Library._CreateSlider(tab, config)
 
     sliderBg.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            PlayClickSound()
             dragging = true
             UpdateSlider(input)
         end
@@ -1534,6 +1632,7 @@ function Library._CreateButton(tab, config)
     })
 
     button.MouseButton1Click:Connect(function()
+        PlayClickSound()
         CreateTween(frame, {BackgroundTransparency = 0.2}, animationspeed.Fast)
         task.wait(0.1)
         CreateTween(frame, {BackgroundTransparency = 0.4}, animationspeed.Fast)
@@ -1626,6 +1725,7 @@ function Library._CreateToggle(tab, config)
     end
 
     button.MouseButton1Click:Connect(function()
+        PlayClickSound()
         enabled = not enabled
         UpdateToggle()
         callback(enabled)
@@ -1798,6 +1898,7 @@ function Library._CreateDropdown(tab, config)
         end)
 
         optionBtn.MouseButton1Click:Connect(function()
+            PlayClickSound()
             if multiSelect then
                 local index = table.find(selected, option)
                 if index then
@@ -1835,6 +1936,7 @@ function Library._CreateDropdown(tab, config)
     })
 
     toggleBtn.MouseButton1Click:Connect(function()
+        PlayClickSound()
         expanded = not expanded
         optionsContainer.Visible = expanded
         CreateTween(arrow, {Rotation = expanded and 180 or 0}, animationspeed.Normal)
@@ -1964,6 +2066,7 @@ function Library._CreateKeybind(tab, config, lib)
     end
 
     button.MouseButton1Click:Connect(function()
+        PlayClickSound()
         listening = true
         UpdateKeyDisplay()
     end)
@@ -2260,6 +2363,7 @@ function Library._CreateColorPicker(tab, config)
     end
 
     previewBtn.MouseButton1Click:Connect(function()
+        PlayClickSound()
         if expanded then
             ClosePicker()
         else
@@ -2364,6 +2468,7 @@ function Library._CreateTextBox(tab, config)
     })
 
     textBox.Focused:Connect(function()
+        PlayClickSound()
         CreateTween(textBoxContainer, {BackgroundTransparency = 0}, animationspeed.Fast)
         CreateTween(textBoxStroke, {Color = c.Accent}, animationspeed.Fast)
         CreateTween(icon, {ImageColor3 = c.Text}, animationspeed.Fast)
@@ -2453,6 +2558,7 @@ function Library._CreateConfigSection(tab)
     Library._CreateButton(tab, {
         Name = "Save Config",
         Callback = function()
+            PlayClickSound()
             local configName = configNameBox:GetText()
             if configName and configName ~= "" then
                 lib:SaveConfig(configName)
@@ -2464,6 +2570,7 @@ function Library._CreateConfigSection(tab)
     Library._CreateButton(tab, {
         Name = "Load Config",
         Callback = function()
+            PlayClickSound()
             local configName = configNameBox:GetText()
             if configName and configName ~= "" then
                 lib:LoadConfig(configName)
@@ -2474,6 +2581,7 @@ function Library._CreateConfigSection(tab)
     Library._CreateButton(tab, {
         Name = "Delete Config",
         Callback = function()
+            PlayClickSound()
             local configName = configNameBox:GetText()
             if configName and configName ~= "" then
                 lib:DeleteConfig(configName)
@@ -2485,6 +2593,7 @@ function Library._CreateConfigSection(tab)
     Library._CreateButton(tab, {
         Name = "Refresh Configs",
         Callback = function()
+            PlayClickSound()
             configDropdown:Refresh(lib:GetConfigs())
             lib:Notify({
                 Title = "Configs Refreshed",
