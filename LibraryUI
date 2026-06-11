@@ -67,10 +67,9 @@ Library.__index = Library
 local Connections = {}
 local NotificationQueue = {}
 local NotificationContainer = nil
-local ClickSound = nil
 
 local function PlayClickSound()
-    local success = pcall(function()
+    pcall(function()
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://6895079853"
         sound.Volume = 0.5
@@ -216,7 +215,7 @@ local function GetAvailableConfigs()
         EnsureConfigFolder()
         local files = listfiles("SkulxConfigs")
         for _, file in ipairs(files) do
-            local name = file:match("SkulxConfigs/(.+)%.json$") or file:match("AcrylicConfigs\\(.+)%.json$")
+            local name = file:match("SkulxConfigs/(.+)%.json$") or file:match("SkulxConfigs\\(.+)%.json$")
             if name then
                 table.insert(configs, name)
             end
@@ -638,7 +637,7 @@ function Library:_CreateMainv0rtexd()
         Position = UDim2.new(0, 10, 0, 10),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Title,
-        Size = UDim2.new(0, 120, 0, 25),
+        Size = UDim2.new(0, 80, 0, 25),
         Parent = self.topBar
     })
 
@@ -646,7 +645,7 @@ function Library:_CreateMainv0rtexd()
         Name = "ProfileThumbnail",
         BackgroundTransparency = 1,
         Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=48&h=48",
-        Position = UDim2.new(0, 135, 0, 7),
+        Position = UDim2.new(0, 85, 0, 7),
         Size = UDim2.new(0, 32, 0, 32),
         Parent = self.topBar
     })
@@ -658,7 +657,7 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "60 FPS",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 175, 0, 7),
+        Position = UDim2.new(0, 122, 0, 7),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
@@ -671,7 +670,7 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "0 ms",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 175, 0, 23),
+        Position = UDim2.new(0, 122, 0, 23),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
@@ -899,7 +898,6 @@ function Library:Destroy()
     end
 end
 
-
 function Library:_RegisterConfigElement(id, elementType, getValue, setValue)
     self._configElements[id] = {
         type = elementType,
@@ -1064,10 +1062,50 @@ function Library:CreateSection(name)
         AutomaticSize = Enum.AutomaticSize.Y,
         Parent = self.sectionsContainer
     })
-    CreatePadding(sectionFrame, 0, 0, 15, 0)
-    CreatePadding(sectionFrame, 0, 0, 15, 0)
-    CreateListLayout(sectionFrame, 6, Enum.SortOrder.LayoutOrder)
-    CreatePadding(sectionFrame, 0, 0, 10, 0)
+    CreateListLayout(sectionFrame, 2, Enum.SortOrder.LayoutOrder)
+
+    local headerContainer = CreateInstance("Frame", {
+        Name = "HeaderContainer",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 25),
+        LayoutOrder = 0,
+        Parent = sectionFrame
+    })
+
+    local headerBtn = CreateInstance("TextButton", {
+        Name = "Header",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = "",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = headerContainer
+    })
+
+    local headerLabel = CreateInstance("TextLabel", {
+        Name = "Label",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = name,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 5, 0, 0),
+        TextSize = textsize.Small,
+        Size = UDim2.new(1, -25, 1, 0),
+        Parent = headerContainer
+    })
+
+    local arrow = CreateInstance("ImageButton", {
+        Name = "Arrow",
+        Image = "rbxassetid://105558791071013",
+        ImageColor3 = c.TextDark,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -20, 0.5, -7),
+        Size = UDim2.new(0, 15, 0, 15),
+        Rotation = 0,
+        Parent = headerContainer
+    })
 
     local tabsContainer = CreateInstance("Frame", {
         Name = "TabsContainer",
@@ -1078,8 +1116,17 @@ function Library:CreateSection(name)
         LayoutOrder = 1,
         Parent = sectionFrame
     })
-    CreateListLayout(tabsContainer, 6, Enum.SortOrder.LayoutOrder)
-    CreatePadding(tabsContainer, 0, 0, 5, 0)
+    CreateListLayout(tabsContainer, 2, Enum.SortOrder.LayoutOrder)
+    CreatePadding(tabsContainer, 0, 0, 15, 0)
+
+    local function ToggleSection()
+        section.expanded = not section.expanded
+        CreateTween(arrow, {Rotation = section.expanded and 0 or 180}, animationspeed.Normal)
+        tabsContainer.Visible = section.expanded
+    end
+
+    headerBtn.MouseButton1Click:Connect(ToggleSection)
+    arrow.MouseButton1Click:Connect(ToggleSection)
 
     section.frame = sectionFrame
     section.tabsContainer = tabsContainer
@@ -1524,19 +1571,6 @@ function Library._CreateSlider(tab, config)
         valueBox.Text = tostring(currentValue)
         callback(currentValue)
     end
-
-    valueBox.FocusLost:Connect(function()
-        local num = tonumber(valueBox.Text)
-        if num then
-            currentValue = math.clamp(math.floor(num), min, max)
-            local relativeX = (currentValue - min) / (max - min)
-            sliderFill.Size = UDim2.new(relativeX, 0, 1, 0)
-            valueBox.Text = tostring(currentValue)
-            callback(currentValue)
-        else
-            valueBox.Text = tostring(currentValue)
-        end
-    end)
 
     valueBox.FocusLost:Connect(function()
         local num = tonumber(valueBox.Text)
@@ -2007,7 +2041,7 @@ function Library._CreateKeybind(tab, config, lib)
         BackgroundColor3 = c.Secondary,
         BackgroundTransparency = 0.4,
         BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, s.Button.Height),
+        Size = UDim2.new(         1, 0, 0, s.Button.Height),
         Parent = tab.content
     })
     CreateCorner(frame, 5)
