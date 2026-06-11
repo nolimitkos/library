@@ -36,7 +36,7 @@ local s = {
     Button = {Height = 39},
     Slider = {Height = 46},
     Dropdown = {Height = 39, OptionHeight = 30},
-    Tab = {Width = 135, Height = 35},
+    Tab = {Width = 135, Height = 42},
     ColorPicker = {Width = 180, Height = 160},
     Notification = {Width = 220, Height = 70},
     TextBox = {Height = 39, InputWidth = 150}
@@ -792,8 +792,8 @@ function Library:_CreateContentArea()
         Name = "SkulxIcon",
         BackgroundTransparency = 1,
         Image = "rbxassetid://91932756882825",
-        AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 11, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
         Size = UDim2.new(0, 22, 0, 22),
         Parent = sidebarIconFrame
     })
@@ -2565,7 +2565,49 @@ end
 
 function Library._CreateConfigSection(tab)
     local lib = tab._library
-    
+
+    Library._CreateContentSection(tab, "Credits")
+
+    local function CreateCreditRow(parent, iconId, labelText)
+        local row = CreateInstance("Frame", {
+            Name = "CreditRow_" .. labelText,
+            BackgroundColor3 = c.Secondary,
+            BackgroundTransparency = 0.4,
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 0, s.Button.Height),
+            Parent = parent
+        })
+        CreateCorner(row, 5)
+        CreateStroke(row)
+
+        CreateInstance("ImageLabel", {
+            Name = "CreditIcon",
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://" .. iconId,
+            ImageColor3 = c.TextDark,
+            AnchorPoint = Vector2.new(0, 0.5),
+            Position = UDim2.new(0, 10, 0.5, 0),
+            Size = UDim2.new(0, 18, 0, 18),
+            Parent = row
+        })
+
+        CreateInstance("TextLabel", {
+            Name = "CreditLabel",
+            FontFace = f.Regular,
+            TextColor3 = c.TextDark,
+            Text = labelText,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 36, 0, 0),
+            TextSize = textsize.Normal,
+            Size = UDim2.new(1, -46, 1, 0),
+            Parent = row
+        })
+    end
+
+    CreateCreditRow(tab.content, "106672459959092", "YouTube: @estvivant")
+    CreateCreditRow(tab.content, "108322717613484", "DC server: Soon!")
+
     Library._CreateContentSection(tab, "Configuration")
 
     local configNameBox = Library._CreateTextBox(tab, {
@@ -2656,7 +2698,7 @@ function Library:CreateInfoTab(config)
     local features = config.Features or {}
 
     local infoSection = self:CreateSection("__InfoSection__")
-    local infoTab = infoSection:CreateTab("Info", "rbxassetid://91932756882825")
+    local infoTab = infoSection:CreateTab("Info", "rbxassetid://76969973297483")
 
     Library._CreateContentSection(infoTab, "[ Game Information ]")
 
@@ -2753,6 +2795,13 @@ function Library:CreateInfoTab(config)
                 Parent = infoTab.content
             })
         end
+
+        CreateInstance("Frame", {
+            Name = "UpdateSpacer",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 6),
+            Parent = infoTab.content
+        })
     end
 
     return {
