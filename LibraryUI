@@ -629,24 +629,11 @@ function Library:_CreateMainv0rtexd()
     local player = plr.LocalPlayer
     local userId = player.UserId
 
-    self.titleLabel = CreateInstance("TextLabel", {
-        Name = "Title",
-        FontFace = f.Bold,
-        TextColor3 = c.Text,
-        Text = "Skulx",
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 10, 0, 10),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = textsize.Title,
-        Size = UDim2.new(0, 60, 0, 25),
-        Parent = self.topBar
-    })
-
     self.profileThumbnail = CreateInstance("ImageLabel", {
         Name = "ProfileThumbnail",
         BackgroundTransparency = 1,
-        Image = "rbxassetid://92249422539287",
-        Position = UDim2.new(0, 75, 0, 7),
+        Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=48&h=48",
+        Position = UDim2.new(0, 10, 0, 7),
         Size = UDim2.new(0, 32, 0, 32),
         Parent = self.topBar
     })
@@ -658,7 +645,7 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "60 FPS",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 115, 0, 7),
+        Position = UDim2.new(0, 48, 0, 7),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
@@ -671,11 +658,25 @@ function Library:_CreateMainv0rtexd()
         TextColor3 = c.TextDark,
         Text = "0 ms",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 115, 0, 23),
+        Position = UDim2.new(0, 48, 0, 23),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = textsize.Small,
         Size = UDim2.new(0, 80, 0, 16),
         Parent = self.topBar
+    })
+
+    self.bottomTitleLabel = CreateInstance("TextLabel", {
+        Name = "BottomTitle",
+        FontFace = f.Bold,
+        TextColor3 = c.TextDark,
+        Text = self.title,
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 1),
+        Position = UDim2.new(0.5, 0, 1, -4),
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextSize = textsize.Tiny,
+        Size = UDim2.new(0, 120, 0, 14),
+        Parent = self.container
     })
 
     local fpsCount = 0
@@ -778,6 +779,24 @@ function Library:_CreateContentArea()
     })
     CreateListLayout(self.sectionsContainer, 0, Enum.SortOrder.LayoutOrder)
     CreatePadding(self.sectionsContainer, 5, 5, 10, 5)
+
+    local sidebarIconFrame = CreateInstance("Frame", {
+        Name = "SidebarIconFrame",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -10, 0, 28),
+        LayoutOrder = -999,
+        Parent = self.sectionsContainer
+    })
+
+    CreateInstance("ImageLabel", {
+        Name = "SkulxIcon",
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://91932756882825",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
+        Parent = sidebarIconFrame
+    })
 
     local sidebarLine = CreateInstance("Frame", {
         Name = "SidebarLine",
@@ -1115,7 +1134,7 @@ function Library._CreateTab(section, name, icon)
     local iconLabel = CreateInstance("ImageLabel", {
         Name = "Icon",
         BackgroundTransparency = 1,
-        Image = icon or "rbxassetid://91932756882825",
+        Image = icon or "rbxassetid://112235310154264",
         ImageColor3 = c.TextDark,
         AnchorPoint = Vector2.new(0, 0.5),
         Position = UDim2.new(0, 11, 0.5, 0),
@@ -2054,7 +2073,10 @@ function Library._CreateKeybind(tab, config, lib)
 
     local button = CreateInstance("TextButton", {
         Name = "Button",
-        Text = "",         Parent = keybindBox
+        Text = "",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = keybindBox
     })
 
     local keybindId = name .. "_" .. tostring(tick())
@@ -2622,6 +2644,147 @@ function Library._CreateConfigSection(tab)
     return {
         RefreshConfigs = function()
             configDropdown:Refresh(lib:GetConfigs())
+        end
+    }
+end
+
+function Library:AddInfoTab(config)
+    local gameIcon = config.GameIcon or "rbxassetid://92249422539287"
+    local gameName = config.GameName or "Unknown Game"
+    local updates = config.Updates or {}
+    local features = config.Features or {}
+
+    local section = self:CreateSection("Info")
+    local infoTab = section:CreateTab("Info", "rbxassetid://91932756882825")
+
+    local gameInfoLabel = CreateInstance("TextLabel", {
+        Name = "GameInfoHeader",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = "[ Game Information ]",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = textsize.Small,
+        Size = UDim2.new(1, 0, 0, 20),
+        Parent = infoTab.content
+    })
+
+    local infoCard = CreateInstance("Frame", {
+        Name = "InfoCard",
+        BackgroundColor3 = c.Secondary,
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 90),
+        Parent = infoTab.content
+    })
+    CreateCorner(infoCard, 5)
+    CreateStroke(infoCard)
+
+    local gameThumb = CreateInstance("ImageLabel", {
+        Name = "GameThumbnail",
+        BackgroundTransparency = 1,
+        Image = gameIcon,
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 10, 0.5, 0),
+        Size = UDim2.new(0, 60, 0, 60),
+        Parent = infoCard
+    })
+    CreateCorner(gameThumb, 5)
+
+    local gameNameLabel = CreateInstance("TextLabel", {
+        Name = "GameName",
+        FontFace = f.Bold,
+        TextColor3 = c.Text,
+        Text = gameName,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = textsize.Normal,
+        Position = UDim2.new(0, 80, 0, 15),
+        Size = UDim2.new(1, -90, 0, 18),
+        Parent = infoCard
+    })
+
+    local playerCountLabel = CreateInstance("TextLabel", {
+        Name = "PlayerCount",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = "Players: 0",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = textsize.Small,
+        Position = UDim2.new(0, 80, 0, 38),
+        Size = UDim2.new(1, -90, 0, 16),
+        Parent = infoCard
+    })
+
+    local seasonLabel = CreateInstance("TextLabel", {
+        Name = "SeasonTime",
+        FontFace = f.Regular,
+        TextColor3 = c.TextDark,
+        Text = "Season Time: 00:00:00",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = textsize.Small,
+        Position = UDim2.new(0, 80, 0, 56),
+        Size = UDim2.new(1, -90, 0, 16),
+        Parent = infoCard
+    })
+
+    if #updates > 0 then
+        CreateInstance("TextLabel", {
+            Name = "UpdateHeader",
+            FontFace = f.Regular,
+            TextColor3 = c.TextDark,
+            Text = "[ Update ]",
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1,
+            TextSize = textsize.Small,
+            Size = UDim2.new(1, 0, 0, 20),
+            Parent = infoTab.content
+        })
+
+        for _, updateText in ipairs(updates) do
+            CreateInstance("TextLabel", {
+                Name = "UpdateItem",
+                FontFace = f.Regular,
+                TextColor3 = c.TextDark,
+                Text = "• " .. updateText,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                BackgroundTransparency = 1,
+                TextSize = textsize.Small,
+                Size = UDim2.new(1, 0, 0, 18),
+                Parent = infoTab.content
+            })
+        end
+    end
+
+    if #features > 0 then
+        CreateInstance("TextLabel", {
+            Name = "FeaturesHeader",
+            FontFace = f.Regular,
+            TextColor3 = c.TextDark,
+            Text = "Features",
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1,
+            TextSize = textsize.Small,
+            Size = UDim2.new(1, 0, 0, 20),
+            Parent = infoTab.content
+        })
+
+        for _, featureConfig in ipairs(features) do
+            Library._CreateToggle(infoTab, featureConfig)
+        end
+    end
+
+    return {
+        SetPlayerCount = function(count)
+            playerCountLabel.Text = "Players: " .. tostring(count)
+        end,
+        SetSeasonTime = function(timeStr)
+            seasonLabel.Text = "Season Time: " .. tostring(timeStr)
+        end,
+        SetGameIcon = function(iconId)
+            gameThumb.Image = iconId
         end
     }
 end
